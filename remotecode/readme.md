@@ -13,28 +13,18 @@ CSS:
 
 - https://cdn.simplecss.org/simple.css
 
-  // EXTERNAL USED CODE
-//svg images from https://fonts.google.com/
+# Code Sources
 
-// scrypt from https://www.jsdelivr.com/package/npm/scrypt-js
-// https://github.com/ricmoo/scrypt-js/
+svg: images from https://fonts.google.com/
 
-// qr code creator
-// USING : https://davidshimjs.github.io/qrcodejs : 34 kb requires div
-// https://cdnjs.com/libraries/qrcode/1.4.4 : 340 kb requires canvas
+scrypt: from https://www.jsdelivr.com/package/npm/scrypt-js  https://github.com/ricmoo/scrypt-js/
 
-// scan qr code from camera
-// USING : https://github.com/mebjas/html5-qrcode
-// https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js
-// 366 kb
-// https://github.com/nimiq/qr-scanner
-// https://nimiq.github.io/qr-scanner/qr-scanner.umd.min.js
-// 60 kb
-// https://developer.mozilla.org/en-US/docs/Web/API/Barcode_Detection_API
-// ?? poor browser support
+QR Code Creation: https://davidshimjs.github.io/qrcodejs : 34 kb requires div
 
-concatenate Uint8arrays : https://evanhahn.com/the-best-way-to-concatenate-uint8arrays/
+Scanning QR Code: https://github.com/mebjas/html5-qrcode https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js
 
-template() :  // https://stackoverflow.com/questions/377961/efficient-javascript-string-replacement
+Concatenate Uint8arrays: https://evanhahn.com/the-best-way-to-concatenate-uint8arrays/
 
-beep() : // https://stackoverflow.com/a/29641185
+template(): https://stackoverflow.com/questions/377961/efficient-javascript-string-replacement
+
+beep(): https://stackoverflow.com/a/29641185
