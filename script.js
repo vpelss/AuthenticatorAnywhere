@@ -1,36 +1,26 @@
 // TO DO:
+//extention askes when pw is blank? how?
+
+//camera permissions in extention
+
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
 
-//biometrics? CTAP2
-//https://github.com/dvas0004/web-auth/blob/master/src/webauthn.js
-//https://blog.davidvassallo.me/2019/01/25/exploring-the-webauthn-api-a-bare-bones-js-app/
-//https://mprimi.github.io/portable-secret/
-//js trigger password manaagers : https://hidde.blog/making-password-managers-play-ball-with-your-login-form/
-//https://stackoverflow.blog/2022/11/16/biometric-authentication-for-web-devs/
-//https://webauthn.guide/
-
 /*
-// EXTERNAL USED CODE
+// Code Sources
 //svg images from https://fonts.google.com/
 
 // scrypt from https://www.jsdelivr.com/package/npm/scrypt-js
 // https://github.com/ricmoo/scrypt-js/
 
 // qr code creator
-// USING : https://davidshimjs.github.io/qrcodejs : 34 kb requires div
-// https://cdnjs.com/libraries/qrcode/1.4.4 : 340 kb requires canvas
+// https://davidshimjs.github.io/qrcodejs : 34 kb requires div
 
 // scan qr code from camera
-// USING : https://github.com/mebjas/html5-qrcode
+// https://github.com/mebjas/html5-qrcode
 // https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js
 // 366 kb
-// https://github.com/nimiq/qr-scanner
-// https://nimiq.github.io/qr-scanner/qr-scanner.umd.min.js
-// 60 kb
-// https://developer.mozilla.org/en-US/docs/Web/API/Barcode_Detection_API
-// ?? poor browser support
 
 concatenate Uint8arrays : https://evanhahn.com/the-best-way-to-concatenate-uint8arrays/
 
@@ -99,7 +89,7 @@ let elementCancelAddEntry = document.getElementById("cancelAddEntry");
 let elementError = document.getElementById("error");
 let elementJsonSave = document.getElementById("JSONSave");
 let elementTempDialog = document.getElementById("tempDialog");
-let elementAddEntryURL=  document.getElementById("addEntryURL");
+let elementAddEntryURL = document.getElementById("addEntryURL");
 
 //event listeners
 elementMenuIcon.addEventListener("click", openMenu);
@@ -166,6 +156,9 @@ elementCancelChangePasswordButton.addEventListener("click", function () {
 });
 elementAddEntryForm.addEventListener("submit", function () {
   addEntry(this);
+});
+elementCancelAddEntry.addEventListener("click", function () {
+  closeDialog("addEntryDialog");
 });
 
 // START MAIN LOOP //
@@ -369,12 +362,6 @@ function editEntryDialog(id) {
 
     let url = `otpauth://totp/${issuer}:${name}?issuer=${issuer}&name=${name}&secret=${secret}&algorithm=${algorithm}&digits=${digits}&period=${period}&note=${note}`;
 
-    //do we have enough data to continue>
-    if (secret == "" || issuer == "") {
-      alert("Not enough data entered");
-      return;
-    }
-
     //build html modifiedTemplate with data using #editEntryTemplate
     let modifiedTemplate = template("editEntryTemplate", {
       entryId: "" + id,
@@ -402,7 +389,7 @@ function editEntryDialog(id) {
 
     //create qr code and hide it. #qrCode is on #tempDialog
     let elementQrCode = document.getElementById("qrCode");
-    new QRCode(elementQrCode , url); //#qrCode is a div
+    new QRCode(elementQrCode, url); //#qrCode is a div
     elementQrCode.title = ""; //not a good idea to leave this visible
     elementQrCode.style.display = "none"; //hide it right away
   } catch (err) {
@@ -418,6 +405,12 @@ async function editEntry(id) {
     let entryIssuer = el.editEntryIssuer.value;
     let entryNote = el.editEntryNote.value;
     let entrySecret = el.editEntryInfoSecret.value;
+
+    //do we have enough data to continue>
+    if (entrySecret == "" || entryIssuer == "") {
+      alert("Not enough data entered");
+      return;
+    }
 
     //update the entry in dbGlobal
     dbGlobal.entries[id].name = entryName;
@@ -498,8 +491,6 @@ function html5QrCodeStop() {
 
 async function addEntry(el) {
   try {
-    //el is the form from #addEntryDialog
-    let url = el.addEntryURL.value;
     //build an entry object with default values
     let uuid = self.crypto.randomUUID();
     let entryTemplate = {
@@ -519,7 +510,9 @@ async function addEntry(el) {
       groups: []
     };
 
-    //URL or manual
+    //el is the form from #addEntryDialog
+    let url = el.addEntryURL.value;
+    //URL or manual add
     if (isValidHttpUrl(url)) {
       // otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1 &digits=6&period=30
       let urlArray = new URL(url);
@@ -540,6 +533,12 @@ async function addEntry(el) {
       entryTemplate.name = el.addEntryName.value;
       entryTemplate.note = el.addEntryNote.value;
       entryTemplate.info.secret = el.addEntrySecret.value;
+    }
+
+    //do we have enough data to continue>
+    if (entryTemplate.info.secret == "" || entryTemplate.issuer == "") {
+      alert("Not enough data entered");
+      return;
     }
 
     //create object if it does not exist
@@ -1282,9 +1281,9 @@ async function decryptDb(password) {
     let unencrypted = TD.decode(plaintext);
     return unencrypted;
   } catch (err) {
+    //postError(err);
     //dont bother. it will fail on first try and we need it to return the failure so we can ask for a password
     return false;
-    //postError(err);
   }
 }
 
@@ -1306,8 +1305,8 @@ async function decrypt(iv, key, ciphertext) {
     return decrypted;
   } catch (err) {
     //let calling routine there has been an error
-    return false;
     //postError(err);
+    return false;
   }
 }
 
@@ -1428,94 +1427,3 @@ async function encrypt(iv, key, ciphertext) {
     return false;
   }
 } // ENCRYPTION DECRYPTION HMAC FUNCTIONS //
-
-/*
-//qr native version
-const video = document.querySelector("#videoViewer");
-
-function turnOnVideo(video) {
-  const constraints = {
-  video: { user: "environment" }
-};
-  navigator.mediaDevices
-    .getUserMedia(constraints)
-    .then((mediaStream) => {
-      //const video = document.querySelector("video");
-      video.srcObject = mediaStream;
-      video.onloadedmetadata = () => {
-        video.play();
-      };
-    })
-    .catch((err) => {
-      postError(err);
-    });
-}
-
-function stopStreamedVideo(videoElem) {
-  const stream = videoElem.srcObject;
-  const tracks = stream.getTracks();
-  tracks.forEach((track) => {
-    track.stop();
-  });
-  videoElem.srcObject = null;
-}
-
-let barcodeDetector;
-function enableQrSearch() {
-  // check compatibility
-  if (!("BarcodeDetector" in globalThis)) {
-    console.log("Barcode Detector is not supported by this browser.");
-  } else {
-    // create new detector
-   elementAddEntryURL.value = "";
-    turnOnVideo(video);
-    console.log("Barcode Detector supported!");
-    barcodeDetector = new BarcodeDetector({
-      formats: ["qr_code"]
-    });
-    setInterval(getQrCode, 1000);
-  }
-}
-
-function getQrCode() {
-  if ("BarcodeDetector" in globalThis) {
-    ////video needs to be video element
-    barcodeDetector
-      .detect(video)
-      .then((barcodes) => {
-        barcodes.forEach((barcode) => {
-         elementAddEntryURL.value = barcode.rawValue;
-          beep();
-        });
-      })
-      .catch((err) => {
-        postError(err);
-      });
-  }
-}
-
-*/
-
-/*
-// https://github.com/nimiq/qr-scanner
-let qrScanner;
-function nimiq() {
-  import("https://nimiq.github.io/qr-scanner/qr-scanner.min.js").then(
-    (module) => {
-      const QrScanner = module.default;
-      //video needs to be video element
-      qrScanner = new QrScanner(
-        video,
-        function (result) {
-          elementAddEntryURL.value = result.data;
-          beep();
-        },
-        {
-          // your options or returnDetailedScanResult: true if you're not specifying any other options 
-        }
-      );
-      qrScanner.start();
-    }
-  );
-}
-*/
