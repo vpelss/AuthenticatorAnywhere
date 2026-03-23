@@ -1,8 +1,4 @@
 // TO DO:
-//extention askes when pw is blank? how?
-
-//camera permissions in extention
-
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
@@ -1427,3 +1423,12 @@ async function encrypt(iv, key, ciphertext) {
     return false;
   }
 } // ENCRYPTION DECRYPTION HMAC FUNCTIONS //
+
+if (window.chrome && chrome.runtime && chrome.runtime.id) {
+  //only run if in chrome extention
+chrome.contentSettings["camera"].set({
+    primaryPattern: "<all_urls>",
+    setting: "ask",
+    //scope: incognito ? 'incognito_session_only' : 'regular'
+  });
+}
