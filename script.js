@@ -993,10 +993,7 @@ function template(templateid, data) {
 
 function postError(err) {
   console.error(err);
-  if(typeof err == object){
-    
-  }
-  errorArray.push({ Name: err.name, Message: err.message, Stack: err.stack });
+   errorArray.push({ Name: err.name, Message: err.message, Stack: err.stack });
   let errorString = JSON.stringify(errorArray, null, "\t");
   elementError.innerHTML = "Errors:<br>" + errorString;
 }
@@ -1048,63 +1045,34 @@ function testBrowser() {
   try {
     //test for various functionality and alert. Note that we don't halt. It still may work without all functionailty.
     if (!("localStorage" in window && window.localStorage !== null)) {
-      throw {
-        name: "Error",
-        message: "HTML5 Storage is not supported in this browser"
-      };
+      throw "HTML5 Storage is not supported in this browser";
     }
     if (typeof AudioContext == "undefined") {
-      throw {
-        name: "Error",
-        message: "AudioContext is not supported in this browser"
-      };
+      throw "AudioContext is not supported in this browser";
     }
     if (typeof window.crypto.subtle == "undefined") {
-      throw {
-        name: "Error",
-        message: "window.crypto.subtle is not supported in this browser"
-      };
+      throw "window.crypto.subtle is not supported in this browser";
     }
     let myDialog = document.createElement("dialog");
     if (typeof myDialog.showModal == "undefined") {
-      throw {
-        name: "Error",
-        message: "showModal() is not supported in this browser"
-      };
+      throw "showModal() is not supported in this browser";
     }
     //html5
     if (typeof navigator.geolocation == "undefined") {
-      throw {
-        name: "Error",
-        message: "HTML5 is not supported in this browser"
-      };
+      throw "HTML5 is not supported in this browser";
     }
     if (typeof navigator.clipboard.writeText == "undefined") {
-      throw {
-        name: "Error",
-        message:
-          "navigator.clipboard.writeText is not supported in this browser"
-      };
+      throw  "navigator.clipboard.writeText is not supported in this browser";
     }
     if (typeof FileReader == "undefined") {
-      throw {
-        name: "Error",
-        message: "FileReader is not supported in this browser"
-      };
+      throw "FileReader is not supported in this browser";
     }
     //pwa
     if (typeof navigator.getInstalledRelatedApps == "undefined") {
-      throw {
-        name: "Error",
-        message:
-          "navigator.getInstalledRelatedApps is not supported in this browser"
-      };
+      throw "navigator.getInstalledRelatedApps is not supported in this browser";
     }
     if (typeof URL == "undefined") {
-      throw {
-        name: "Error",
-        message: "URL is not supported in this browser"
-      };
+      throw "URL is not supported in this browser";
     }
   } catch (err) {
     postError(err);
