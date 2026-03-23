@@ -1,4 +1,11 @@
 // TO DO:
+
+//double download on git version
+
+//ios browser obj error
+
+//
+
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
@@ -182,7 +189,7 @@ async function main() {
     startTime = Date.now();
     openDialog("waitDialog");
     closeMenu();
-    errorArray = [];
+   // errorArray = [];
     elementError.innerHTML = "";
     elementJsonSave.value = "";
     elementEntriesDiv.innerHTML =
@@ -986,6 +993,9 @@ function template(templateid, data) {
 
 function postError(err) {
   console.error(err);
+  if(typeof err == object){
+    
+  }
   errorArray.push({ Name: err.name, Message: err.message, Stack: err.stack });
   let errorString = JSON.stringify(errorArray, null, "\t");
   elementError.innerHTML = "Errors:<br>" + errorString;
