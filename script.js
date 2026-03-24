@@ -30,7 +30,7 @@ beep() : // https://stackoverflow.com/a/29641185
 
 "use strict";
 
-import * as sscrypt from  "https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js"
+//import * as sscrypt from  "https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js"
 /*
 let sscrypt;
 async function me() {
