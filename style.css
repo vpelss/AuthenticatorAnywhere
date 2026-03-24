@@ -1,6 +1,7 @@
 body {
   margin: 2px;
   min-width: 350px;
+  min-height: 700px;
 }
 
 /* turns off idiotic swipe down to refresh , pull-to-refresh */

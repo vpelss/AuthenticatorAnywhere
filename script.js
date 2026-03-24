@@ -2,10 +2,6 @@
 
 //double download on git version
 
-//ios browser obj error
-
-//
-
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
@@ -33,6 +29,23 @@ beep() : // https://stackoverflow.com/a/29641185
 */
 
 "use strict";
+
+import * as sscrypt from  "https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js"
+/*
+let sscrypt;
+async function me() {
+  if (true) {
+    try {
+     sscrypt = await import("https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js");
+      let zz = {sscrypt};
+      let z = 8;
+    } catch (err) {
+      let h = 8;
+    }
+  }
+};
+me();
+*/
 
 let password = ""; //it can be "", but harangue to set a password
 let myInterval; //update every second
@@ -169,7 +182,7 @@ elementCancelAddEntry.addEventListener("click", function () {
 if (!testBrowser()) {
   console.log("Some browser funtions not supported");
   //tempMessage("Some browser funtions not supported", 5000);
-  alert("Some browser funtions not supported");
+  //alert("Some browser funtions not supported");
 }
 if (Math.floor(Math.random() * 20) <= 1) {
   //remind to back up approximately every 20 runs
@@ -189,7 +202,7 @@ async function main() {
     startTime = Date.now();
     openDialog("waitDialog");
     closeMenu();
-   // errorArray = [];
+    // errorArray = [];
     elementError.innerHTML = "";
     elementJsonSave.value = "";
     elementEntriesDiv.innerHTML =
@@ -993,7 +1006,7 @@ function template(templateid, data) {
 
 function postError(err) {
   console.error(err);
-   errorArray.push({ Name: err.name, Message: err.message, Stack: err.stack });
+  errorArray.push({ Name: err.name, Message: err.message, Stack: err.stack });
   let errorString = JSON.stringify(errorArray, null, "\t");
   elementError.innerHTML = "Errors:<br>" + errorString;
 }
@@ -1062,15 +1075,15 @@ function testBrowser() {
       throw "HTML5 is not supported in this browser";
     }
     if (typeof navigator.clipboard.writeText == "undefined") {
-      throw  "navigator.clipboard.writeText is not supported in this browser";
+      throw "navigator.clipboard.writeText is not supported in this browser";
     }
     if (typeof FileReader == "undefined") {
       throw "FileReader is not supported in this browser";
     }
-    //pwa
-    if (typeof navigator.getInstalledRelatedApps == "undefined") {
-      throw "navigator.getInstalledRelatedApps is not supported in this browser";
-    }
+    //pwa : safari borks
+    // if (typeof navigator.getInstalledRelatedApps == "undefined") {
+    //   throw "navigator.getInstalledRelatedApps is not supported in this browser";
+    //}
     if (typeof URL == "undefined") {
       throw "URL is not supported in this browser";
     }
@@ -1200,6 +1213,7 @@ async function decryptDb(password) {
     //from https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js
     //https://github.com/ricmoo/scrypt-js?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_library#readme
     let hashedPassword = await scrypt.scrypt(pw, salt, n, r, p, dkLen); //asyncronous
+    //let hashedPassword = await scrypt(pw, salt, n, r, p, dkLen); //asyncronous
 
     //go nonce, err := hex.DecodeString(slot.KeyParams.Nonce)
     let nonceString = localStorageObject.header.slots[0].key_params.nonce;
@@ -1404,9 +1418,9 @@ async function encrypt(iv, key, ciphertext) {
 
 if (window.chrome && chrome.runtime && chrome.runtime.id) {
   //only run if in chrome extention
-chrome.contentSettings["camera"].set({
+  chrome.contentSettings["camera"].set({
     primaryPattern: "<all_urls>",
-    setting: "ask",
+    setting: "ask"
     //scope: incognito ? 'incognito_session_only' : 'regular'
   });
 }
