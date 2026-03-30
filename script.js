@@ -1414,27 +1414,29 @@ async function encrypt(iv, key, ciphertext) {
   }
 }
 
+//chrome extention camera permission kludge
 if (window.chrome && chrome.runtime && chrome.runtime.id) {
   //chrome extention
-  
-
-  
-  //document.getElementById("cameraPermissionInstructionsButton").hidden = false;
-  document.getElementById("cameraPermissionInstructionsButtonWrapper").style.display = "inline-block";
+  document.getElementById(
+    "cameraPermissionInstructionsButtonWrapper"
+  ).style.display = "inline-block";
   document
     .getElementById("cameraPermissionInstructionsButton")
     .addEventListener("click", function () {
       openDialog("cameraPermissionInstructions");
     });
-  
-    navigator.permissions.query({ name: "camera" }).then(res => {
-    if(res.state == "granted"){
-        // has permission
-      document.getElementById("cameraPermissionInstructionsButtonWrapper").style.display = "none";
+  //remove button if permissions are already set
+  navigator.permissions.query({ name: "camera" }).then((res) => {
+    if (res.state == "granted") {
+      // has permission
+      document.getElementById(
+        "cameraPermissionInstructionsButtonWrapper"
+      ).style.display = "none";
     }
-});
+  });
 } else {
   //WPA / Browser
-  document.getElementById("cameraPermissionInstructionsButtonWrapper").style.display = "none";
-  //openDialog("cameraPermissionInstructions");
+  document.getElementById(
+    "cameraPermissionInstructionsButtonWrapper"
+  ).style.display = "none";
 }
