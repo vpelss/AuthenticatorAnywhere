@@ -193,6 +193,12 @@
 <dialog id="addEntryDialog">
   <center>
     <p>Add An Entry</p>
+    <div id="cameraPermissionInstructionsButtonWrapper">
+      <div>
+        If you want to use the camera, you must manually enable camera permissions first!
+      </div>
+    <button id="cameraPermissionInstructionsButton">Click to see how</button>
+      </div>
     <div id="qrVideo"></div>
     <div>OR</div>
     <form id="addEntryForm" method="dialog">
@@ -281,6 +287,17 @@
   </center>
 </dialog>
 
+<dialog id="cameraPermissionInstructions">
+  <p><u>How to set camera permisions in a chrome extention</u></p>
+  <p>Click the Chrome Extention Icon (puzzle piece) in upper right corner of the browser</p>
+  <p>Find the Authenticator Anywhere extention</p>
+  <p>Click the three vertical dots to the right</p>
+  <p>Click on View Web Permissions</p>
+  <p>Set camera permissions to allow</p>
+  <form action="" method="dialog"> <button type="submit">Close</button></form>
+
+</dialog>
+
 <p></p>
 
 <div id="error"></div>
@@ -296,7 +313,9 @@ required for chrome extentions due to CORS
 Offsite urls are in settings for codepen
 But if showing below they should be removed so they are not downloaded again
 -->
-
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js'></script>
+<script src='https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js'></script>
+<script src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'></script><script  src="./script.js"></script>
 
   </body>
   

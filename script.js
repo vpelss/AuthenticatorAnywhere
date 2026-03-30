@@ -1,7 +1,5 @@
 // TO DO:
 
-//double download on git version
-
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
@@ -30,13 +28,13 @@ beep() : // https://stackoverflow.com/a/29641185
 
 "use strict";
 
-//import * as sscrypt from  "https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js"
+//mport * as sscrypt from  "https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js"
 /*
 let sscrypt;
 async function me() {
   if (true) {
     try {
-     sscrypt = await import("https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js");
+     sscrypt = await mport("https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js");
       let zz = {sscrypt};
       let z = 8;
     } catch (err) {
@@ -1414,13 +1412,29 @@ async function encrypt(iv, key, ciphertext) {
     //let calling function know there was an error
     return false;
   }
-} // ENCRYPTION DECRYPTION HMAC FUNCTIONS //
+}
 
 if (window.chrome && chrome.runtime && chrome.runtime.id) {
-  //only run if in chrome extention
-  chrome.contentSettings["camera"].set({
-    primaryPattern: "<all_urls>",
-    setting: "ask"
-    //scope: incognito ? 'incognito_session_only' : 'regular'
-  });
+  //chrome extention
+  
+
+  
+  //document.getElementById("cameraPermissionInstructionsButton").hidden = false;
+  document.getElementById("cameraPermissionInstructionsButtonWrapper").style.display = "inline-block";
+  document
+    .getElementById("cameraPermissionInstructionsButton")
+    .addEventListener("click", function () {
+      openDialog("cameraPermissionInstructions");
+    });
+  
+    navigator.permissions.query({ name: "camera" }).then(res => {
+    if(res.state == "granted"){
+        // has permission
+      document.getElementById("cameraPermissionInstructionsButtonWrapper").style.display = "none";
+    }
+});
+} else {
+  //WPA / Browser
+  document.getElementById("cameraPermissionInstructionsButtonWrapper").style.display = "none";
+  //openDialog("cameraPermissionInstructions");
 }
