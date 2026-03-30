@@ -11,5 +11,5 @@
  "action": {
     "default_popup": "index.html"
   },
-  "permissions": ["contentSettings"]
+ // "permissions": ["contentSettings"]
 }
