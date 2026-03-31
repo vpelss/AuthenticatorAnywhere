@@ -26,7 +26,7 @@ If you already have a saved encrypted Aegis Authenticator database, just click t
 
 If you have no backed up data, click the plus and enter your Authenticator data manually, scan a QR code or import an image of a QR code. The data for manually entering can be found in the URL link found near the QR code. eg: otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example
 
-Should you need to set or change your password, click the menu and click 'Change Password' after you have encrypted the database.
+Should you need to set or change your password, click the menu and click 'Change Password' after you have unencrypted the database.
 
 # Tips
 
