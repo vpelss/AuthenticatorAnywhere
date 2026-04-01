@@ -16,6 +16,8 @@ More features are listed here: https://www.emogic.com/tech-notes/authenticator-a
 
 Modify the code at https://codepen.io/vpelss/pen/EayojzL
 
+It is also availabe as a Chrome Extension. https://chromewebstore.google.com/detail/authenticator-anywhere/hjbpglnnongfehakgdnbhpcgokhdopka
+
 # Run It
 
 https://vpelss.github.io/AuthenticatorAnywhere/
