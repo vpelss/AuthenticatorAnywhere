@@ -458,6 +458,7 @@ required for chrome extentions due to CORS
 <script src="./remotecode/scrypt.js"></script>
 <script src="./remotecode/qrcode.min.js"></script>
 <script src="./remotecode/html5-qrcode.min.js"></script>
+<script src="./script.js"></script>
 <!--
 Offsite urls are in settings for codepen
 But if showing below they should be removed so they are not downloaded again
@@ -632,6 +633,46 @@ elementCancelAddEntry.addEventListener("click", function () {
 elementToggleOff.addEventListener("click", biometricsOn);
 elementToggleOn.addEventListener("click", biometricsOff);
 
+let publicKeyCreate = {
+  // relying party
+  rp: {
+    name: "Authenticator Anywhere",
+    id: "cdpn.io" //code will change this
+  },
+  // random, cryptographically secure, at least 16 bytes
+  challenge: TE.encode(
+    "This is a locally stored webautn, so it does not matter"
+  ),
+  user: {
+    id: TE.encode("Authenticator Anywhere"), //
+    name: "Authenticator Anywhere",
+    displayName: "Authenticator Anywhere"
+  },
+  pubKeyCredParams: [
+    {
+      type: "public-key",
+      alg: -7 // "ES256" IANA COSE Algorithms registry
+    }
+  ]
+};
+
+const publicKeyValidate = {
+  // your domain
+  rpId: "cdpn.io", //code will change this
+  // random, cryptographically secure, at least 16 bytes
+  challenge: TE.encode(
+    "This is a locally stored webautn, so it does not matter"
+  ),
+  allowCredentials: [
+    {
+      id: "", //will be in localStorage
+      type: "public-key"
+    }
+  ],
+  mediation: "identity" //?
+  //authenticatorSelection: {      userVerification: "preferred"   }
+};
+
 // START MAIN LOOP //
 
 if (!testBrowser()) {
@@ -671,6 +712,13 @@ async function main() {
       return;
     }
 
+    // localStorage.removeItem(localStorageName + "Biometrics");
+    if (localStorage.getItem(localStorageName + "Biometrics")) {
+      let rawIdHex = localStorage.getItem(localStorageName + "rawId");
+      if (rawIdHex) {
+        webAuthnValidate(rawIdHex);
+      }
+    }
     //try current pw even if "" and try to decrypt
     let dbJSON = await decryptDb(password);
     closeDialog("waitDialog");
@@ -1246,6 +1294,7 @@ function exportToClipboard() {
 
 async function biometricsOn() {
   try {
+    let rawId;
     if (password == "") {
       alert(
         "You must set a password on your AuthentcatorAnywhere database first."
@@ -1253,60 +1302,20 @@ async function biometricsOn() {
       return false;
     }
     //is there already a saved id?
-    let rawId = localStorage.getItem(localStorageName + "rawId");
+    //rawId = localStorage.getItem(localStorageName + "rawId");
     if (rawId) {
-      //yes : don't create another
-
+      //if (0) {
+      // don't create another
       //maybe encrypy the local password though?
-
       return false;
     } else {
-      //no : create webauthn
-      let publicKeyCreate = {
-        // random, cryptographically secure, at least 16 bytes
-        challenge: TE.encode(
-          "This is a locally stored webautn, so it does not matter"
-        ),
-        // relying party
-        rp: {
-          name: "Authenticator Anywhere",
-          id: "cdpn.io"
-        },
-        user: {
-          id: TE.encode("Authenticator Anywhere"), //
-          name: "Authenticator Anywhere",
-          displayName: "Authenticator Anywhere"
-        },
-        pubKeyCredParams: [
-          {
-            type: "public-key",
-            alg: -7 // "ES256" IANA COSE Algorithms registry
-          }
-        ]
-      };
-      
-      //MUST set rp.id to our site's host....
-     const url = new URL( window.location.origin );
-      publicKeyCreate.rp.id = url.host;
-      
-      let res = await navigator.credentials.create({
-        publicKey: publicKeyCreate
-      });
+      //create webauthn
+      webAuthnCreate();
 
-       //nonce does not need to be random as it is just one block and local only
-       let nonce = new Uint8Array(12); 
-        // key must be 128 or 256 bits
-      let key = res.response.attestationObject.slice(0,32); 
-      let encodedPassword = TE.encode(password);
-      let encryptedPassword = await encrypt(nonce, key , encodedPassword);
-      //convert byteArray to localStorable hex text
-      let decodedEncryptedPassword =  new Uint8Array(encryptedPassword).toHex(); 
-       //store encrypted pw locally
-      localStorage.setItem(localStorageName + "EncryptedPassword" , decodedEncryptedPassword);
-      
       //toggle switch
       elementToggleOff.style.display = "none";
       elementToggleOn.style.display = "inline";
+      localStorage.setItem(localStorageName + "Biometrics", 1);
     }
   } catch (err) {
     postError(err);
@@ -1317,7 +1326,7 @@ async function biometricsOff() {
   try {
     //clear local encrypted password but leave rawId as we may want to turn biometrics on again?
     localStorage.removeItem(localStorageName + "EncryptedPassword");
-    
+
     //clear local webauthn ??
     /*
 An authenticator only stores a single credential for an (RP ID, user ID) pair. So if the user creates another credential for the same user on that authenticator, it'll overwrite rather than duplicate.
@@ -1327,12 +1336,84 @@ An authenticator only stores a single credential for an (RP ID, user ID) pair. S
     //toggle switch
     elementToggleOff.style.display = "inline";
     elementToggleOn.style.display = "none";
+    localStorage.removeItem(localStorageName + "Biometrics");
   } catch (err) {
     postError(err);
-                }
+  }
 }
 
 // SUPPORT FUNCTIONS //
+
+async function webAuthnCreate() {
+  try {
+    //MUST set rp.id to our site's host....
+    const url = new URL(window.location.origin);
+    publicKeyCreate.rp.id = url.host;
+    let res = await navigator.credentials.create({
+      publicKey: publicKeyCreate
+    });
+    let rawId = new Uint8Array(res.rawId).toHex();
+    localStorage.setItem(localStorageName + "rawId", rawId);
+    //creation done
+
+    //get() and use res.response.signature to encrypt
+    //we can't see public or private key on validate but we do get a signed challange based on private key
+    publicKeyValidate.rpIid = url.host;
+    publicKeyValidate.allowCredentials[0].id = res.rawId;
+    res = await navigator.credentials.get({
+      publicKey: publicKeyValidate
+    });
+    let signature = res.response.signature;
+
+    //nonce does not need to be random as it is just one block and local only
+    let nonce = new Uint8Array(12);
+    // key must be 128 or 256 bits
+
+    let key = signature.slice(0, 32);
+    let encodedPassword = TE.encode(password);
+    let encryptedPassword = await encrypt(nonce, key, encodedPassword);
+    //convert byteArray to localStorable hex text
+    let decodedEncryptedPassword = new Uint8Array(encryptedPassword).toHex();
+    //store encrypted pw locally
+    localStorage.setItem(
+      localStorageName + "EncryptedPassword",
+      decodedEncryptedPassword
+    );
+  } catch (err) {
+    postError(err);
+  }
+}
+
+async function webAuthnValidate(rawIdHex) {
+  try{
+  let rawId = new Uint8Array(16);
+  rawId.setFromHex(rawIdHex);
+  publicKeyValidate.allowCredentials[0].id = rawId;
+  const url = new URL(window.location.origin);
+  publicKeyValidate.rpIid = url.host; //MUST set rp.id to our site's host....
+  let res = await navigator.credentials.get({
+    publicKey: publicKeyValidate
+  });
+  //nonce does not need to be random as it is just one block and local only
+  let nonce = new Uint8Array(12);
+  let decodedEncryptedPassword = localStorage.getItem(
+    localStorageName + "EncryptedPassword"
+  );
+  let enodedEncryptedPassword = new Uint8Array(
+    decodedEncryptedPassword.length / 2
+  );
+  enodedEncryptedPassword.setFromHex(
+    decodedEncryptedPassword
+  );
+  //we encrypted with the signed challange with our private key
+  let key = res.response.signature.slice(0, 32);
+  let decryptedPassword = await decrypt(nonce, key, enodedEncryptedPassword);
+  password = TD.decode(decryptedPassword);
+  }
+  catch(err){
+    postError(err);
+  }
+}
 
 function isValidHttpUrl(string) {
   let url;
