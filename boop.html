@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" >
 
@@ -60,9 +61,9 @@ async function fire() {
       authenticatorSelection: {
         residentKey: "required" // Or "required".
       },
-      extensions: {        
-        //largeBlob: {        support: "required" // Or "required".    }      
-       prf: {}  
+      extensions: {
+         prf: {}
+        //largeBlob: {        support: "required" // Or "required".    }
       },
       pubKeyCredParams: [
         {
@@ -79,6 +80,16 @@ async function fire() {
   const credential = await navigator.credentials.create(
     publicKeyCreate
     );
+  
+  // After creation, verify that the authenticator supports and enabled PRF.
+const prfExtensionOutput = credential.getClientExtensionResults()?.prf;
+if (prfExtensionOutput?.enabled) {
+  console.log('✅ PRF was successfully enabled for this new credential.');
+  document.getElementById("output").innerHTML = "PRF was successfully enabled for this new credential.";
+} else {
+  console.log('⚠️ The authenticator does not support PRF or did not enable it.');
+  document.getElementById("output").innerHTML = "PRF was NOT successfully enabled for this new credential.";
+}
 
   if (!credential.getClientExtensionResults().largeBlob) {
     // Large blob not supported by the user agent.
