@@ -58,12 +58,10 @@ async function fire() {
         displayName: "Authenticator Anywhere1"
       },
       authenticatorSelection: {
-        residentKey: "preferred" // Or "required".
+        residentKey: "required" // Or "required".
       },
       extensions: {
-        largeBlob: {
-          support: "preferred" // Or "required".
-        }
+        //largeBlob: {        support: "required" // Or "required".    }
       },
       pubKeyCredParams: [
         {
