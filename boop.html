@@ -91,6 +91,7 @@ if (prfExtensionOutput?.enabled) {
   document.getElementById("output").innerHTML = "PRF was NOT successfully enabled for this new credential.";
 }
 
+  /*
   if (!credential.getClientExtensionResults().largeBlob) {
     // Large blob not supported by the user agent.
     console.log("Large blob not supported by the user agent");
@@ -99,6 +100,7 @@ if (prfExtensionOutput?.enabled) {
   else{
        document.getElementById("output").innerHTML = "Large blob is supported by the user agent";
   }
+  */
 
   if (credential.getClientExtensionResults().largeBlob.supported) {
     // Large blob is supported for this credential.
