@@ -8,9 +8,9 @@
   
   
 
-  <title>webauthn largeBlob</title>
+  <title>webauthn local</title>
 
-    <link rel="canonical" href="https://codepen.io/vpelss/pen/WboQVzW">
+    <link rel="canonical" href="https://codepen.io/vpelss/pen/raMLKWq">
   
   
   
@@ -33,91 +33,21 @@
 <button onclick="createCreds()">register</button>
 <p></p>
 <button onclick="validateCreds()">validate</button>
-                                 
-                                 <div id="output"></div>
+                                 <p></p>
+                                 <div id="message"></div>
   
     <script id="rendered-js" >
-const te = new TextEncoder();
-const td = new TextDecoder();
-
-let challange = "really";
-
-async function fire() {
-
- 
-  let publicKeyCreate = {
-    publicKey: {
-      rp: {
-        name: "Authenticator Anywhere",
-        id: "cdpn.io" //code will change this
-      },
-      // random, cryptographically secure, at least 16 bytes
-      challenge: te.encode(challange),
-      user: {
-        id: te.encode("Authenticator Anywhere3"), //
-        name: "Authenticator Anywhere0",
-        displayName: "Authenticator Anywhere1"
-      },
-      authenticatorSelection: {
-        residentKey: "required" // Or "required".
-      },
-      extensions: {
-         prf: {}
-        //largeBlob: {        support: "required" // Or "required".    }
-      },
-      pubKeyCredParams: [
-        {
-          type: "public-key",
-          alg: -7 // "ES256" IANA COSE Algorithms registry
-        }
-      ]
-    }
-  };
-  
-  const url = new URL(window.location.origin);
-    publicKeyCreate.publicKey.rp.id = url.host;
-  
-  const credential = await navigator.credentials.create(
-    publicKeyCreate
-    );
-  
-  // After creation, verify that the authenticator supports and enabled PRF.
-const prfExtensionOutput = credential.getClientExtensionResults()?.prf;
-if (prfExtensionOutput?.enabled) {
-  console.log('✅ PRF was successfully enabled for this new credential.');
-  document.getElementById("output").innerHTML = "PRF was successfully enabled for this new credential.";
-} else {
-  console.log('⚠️ The authenticator does not support PRF or did not enable it.');
-  document.getElementById("output").innerHTML = "PRF was NOT successfully enabled for this new credential.";
-}
-
-  /*
-  if (!credential.getClientExtensionResults().largeBlob) {
-    // Large blob not supported by the user agent.
-    console.log("Large blob not supported by the user agent");
-    document.getElementById("output").innerHTML = "Large blob not supported by the user agent";
-  }
-  else{
-       document.getElementById("output").innerHTML = "Large blob is supported by the user agent";
-  }
-  */
-
-  if (credential.getClientExtensionResults().largeBlob.supported) {
-    // Large blob is supported for this credential.
-  } else {
-    // Large blob is not supported (this happens if support="preferred" -- the credential was still created).
-  }
-}
-
-fire();
-
 //See https://blog.davidvassallo.me/2019/01/25/exploring-the-webauthn-api-a-bare-bones-js-app/
+
+
 
 let aa;
 let bb;
 
 ///////// START UTIL FUNCTIONS /////////
 // easy way to go from string to ByteArray and back again
+const te = new TextEncoder();
+const td = new TextDecoder();
 
 // another function to go from string to ByteArray, but we first encode the
 // string as base64 - note the use of the atob() function
@@ -167,8 +97,22 @@ const publicKeyCreate = {
 };
 ////// END server generated info //////
 
-//device's authenticator will chose a unique id, create a private/public key pair, sign the challenge, and send the signed challange and public key to the server
+//device's authenticator will chose a unique id, create a private/public key pair, sign the challenge, and send the signed challange and public key to the server 
 async function createCreds() {
+  
+  if (window.PublicKeyCredential &&
+    typeof PublicKeyCredential.getClientCapabilities === 'function') {
+    const caps = await PublicKeyCredential.getClientCapabilities("public-key");
+    if (caps.extensions?.includes("prf")) {
+        console.log("This browser supports the PRF extension.");
+      document.getElementById("message").innerHTML = "This browser supports the PRF extension.";
+    }
+    else{
+       console.log("This browser does not support the PRF extension.");
+       document.getElementById("message").innerHTML = "This browser does not support the PRF extension.";
+    }
+}
+  
   // browser receives the publicKey object and passes it to WebAuthn "create" API
   const res = await navigator.credentials.create({
     publicKey: publicKeyCreate
@@ -181,7 +125,7 @@ async function createCreds() {
   // Below two lines store the most important info - the ID representing the created credentials
   // Typically they are sent via POST to your server, not stored locally - here for DEMO purposes only
   let rawid = binToStr(res.rawId);
-  let rawid2 = td.decode(res.rawId);
+    let rawid2 = td.decode(res.rawId);
   localStorage.setItem("rawId", rawid);
 }
 
@@ -210,13 +154,13 @@ const publicKeyValidate = {
 //sign server challage and send it back to server, allong with some other response data
 async function validateCreds() {
   const rawId = localStorage.getItem("rawId");
-  if (!rawId) {
+  if(! rawId){
     return false;
   }
 
   publicKeyValidate.allowCredentials[0].id = strToBin(rawId);
-
-  /*
+  
+/*
   publicKeyValidate.allowCredentials[0].id = strToBin(rawId);
   // browser receives the publicKey object and passes it to WebAuthn "get" API
   const res = await navigator.credentials.get({
@@ -225,24 +169,23 @@ async function validateCreds() {
   win(res);
 */
   let res;
-  navigator.credentials
-    .get({
-      publicKey: publicKeyValidate
-    })
-    .then(
-      function (res) {
-        bb = res.toJSON();
-        //let cc = AuthenticatorAttestationResponse.getPublicKey() ;
-        win(res);
-      },
-      function (error) {
-        let b = error;
-      }
-    );
+  navigator.credentials.get({
+    publicKey: publicKeyValidate
+  }).then(
+  function(res) {
+    bb = res.toJSON();
+    //let cc = AuthenticatorAttestationResponse.getPublicKey() ;
+    win(res);
+  } , 
+  function(error) {
+    let b = error;
+    }
+);
+  
 }
 
-function win(res) {
-  console.log(res);
+function win(res){
+   console.log(res);
   // here we build an object containing the results, to be sent to the server
   // usually "extractedData" is POSTed to your server
   const extractedData = {
