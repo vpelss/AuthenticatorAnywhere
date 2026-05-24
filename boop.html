@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" >
 
@@ -39,7 +38,7 @@
     <script id="rendered-js" >
 //See https://blog.davidvassallo.me/2019/01/25/exploring-the-webauthn-api-a-bare-bones-js-app/
 
-
+//https://github.com/w3c/webauthn/blob/main/explainers/prf-extension.md
 
 let aa;
 let bb;
@@ -80,60 +79,30 @@ const publicKeyCreate = {
   },
   user: {
     id: te.encode("Authenticator Anywhere"), //
-    name: "Authenticator Anywhere",
-    displayName: "Authenticator Anywhere"
+    name: "Authenticator Anywhere2",
+    displayName: "Authenticator Anywhere3"
   },
   //authenticatorSelection: {
   //authenticatorAttachment: "platform",
   //userVerification: "preferred",
   //},
   // attestation: "direct",
-  pubKeyCredParams: [
-    {
-      type: "public-key",
-      alg: -7 // "ES256" IANA COSE Algorithms registry
-    }
-  ]
+  pubKeyCredParams: [ {   type: "public-key",    alg: -7 }  ],
+  timeout: 60000,
+  authenticatorSelection: {
+            authenticatorAttachment: "cross-platform",
+            residentKey: "required",
+        },
+  extensions: {prf: {}},
+  
 };
 ////// END server generated info //////
-
-//device's authenticator will chose a unique id, create a private/public key pair, sign the challenge, and send the signed challange and public key to the server 
-async function createCreds() {
-  
-  if (window.PublicKeyCredential &&
-    typeof PublicKeyCredential.getClientCapabilities === 'function') {
-    const caps = await PublicKeyCredential.getClientCapabilities("public-key");
-    if (caps.extensions?.includes("prf")) {
-        console.log("This browser supports the PRF extension.");
-      document.getElementById("message").innerHTML = "This browser supports the PRF extension.";
-    }
-    else{
-       console.log("This browser does not support the PRF extension.");
-       document.getElementById("message").innerHTML = "This browser does not support the PRF extension.";
-    }
-}
-  
-  // browser receives the publicKey object and passes it to WebAuthn "create" API
-  const res = await navigator.credentials.create({
-    publicKey: publicKeyCreate
-  });
-  aa = res.toJSON();
-  let clientDataJSON = td.decode(res.response.clientDataJSON);
-  // attestationObject sends back our public key
-  let attestationObject = binToStr(res.response.attestationObject);
-  console.log(res);
-  // Below two lines store the most important info - the ID representing the created credentials
-  // Typically they are sent via POST to your server, not stored locally - here for DEMO purposes only
-  let rawid = binToStr(res.rawId);
-    let rawid2 = td.decode(res.rawId);
-  localStorage.setItem("rawId", rawid);
-}
 
 ////// START server generated info //////
 // Usually the below publicKey object is constructed on your server
 // here for DEMO purposes only
 
-const AUTH_CHALLENGE_VALIDATE = "someRandomString2";
+const AUTH_CHALLENGE_VALIDATE = "someRandomString";
 const publicKeyValidate = {
   // your domain
   rpId: "cdpn.io",
@@ -145,10 +114,67 @@ const publicKeyValidate = {
       type: "public-key"
     }
   ],
+  extensions: {prf: {}},
   mediation: "identity"
   //authenticatorSelection: {      userVerification: "preferred"   }
 };
 ////// END server generated info //////
+
+//device's authenticator will chose a unique id, create a private/public key pair, sign the challenge, and send the signed challange and public key to the server 
+async function createCreds() {
+  
+  if (window.PublicKeyCredential &&
+    typeof PublicKeyCredential.getClientCapabilities === 'function') {
+    const caps = await PublicKeyCredential.getClientCapabilities("public-key");
+    if (caps['extension:prf']) {
+    //if (caps.extensions?.includes("prf")) {
+        console.log("This browser supports the PRF extension.");
+      document.getElementById("message").innerHTML = "This browser supports the PRF extension.";
+    }
+    else{
+       console.log("This browser does not support the PRF extension.");
+       document.getElementById("message").innerHTML = "This browser does not support the PRF extension.";
+    }
+}
+  
+   const url = new URL(window.location.origin);
+    publicKeyCreate.rp.id = url.host;
+   publicKeyValidate.rpId = url.host;
+  
+  // browser receives the publicKey object and passes it to WebAuthn "create" API
+  const res = await navigator.credentials.create({
+    publicKey: publicKeyCreate
+  });
+  
+  let cccc = res.getClientExtensionResults();
+   document.getElementById("message").innerHTML = JSON.stringify(cccc);
+  console.log(cccc);
+  
+  
+
+  publicKeyValidate.allowCredentials[0].id = res.rawId;
+  const encryptionSalt = new TextEncoder().encode('encryption-key-v1');
+  publicKeyValidate.extensions.prf = { eval: {first: encryptionSalt} };
+       
+  let res2;
+  res2 = await navigator.credentials.get({
+    publicKey: publicKeyValidate
+  })
+      
+  const prfResults = res2.getClientExtensionResults()?.prf?.results?.first;
+  
+  
+  aa = res.toJSON();
+  let clientDataJSON = td.decode(res.response.clientDataJSON);
+  // attestationObject sends back our public key
+  let attestationObject = binToStr(res.response.attestationObject);
+  console.log(res);
+  // Below two lines store the most important info - the ID representing the created credentials
+  // Typically they are sent via POST to your server, not stored locally - here for DEMO purposes only
+  let rawid = binToStr(res.rawId);
+    let rawid2 = td.decode(res.rawId);
+  localStorage.setItem("rawId", rawid);
+}
 
 //get locally stored id to find local private hey in authenticator
 //sign server challage and send it back to server, allong with some other response data
