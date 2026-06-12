@@ -1,5 +1,7 @@
 // TO DO:
 
+//biometrics will not work well as there is no way to store hidden data in authenticator. so we might as well store pw in the clear. in any case, users can opt to use no pw, not a good idea, but viable. Revisit in a year and see if webauthn extensions prf or bigblob are more widely accepted. users can also use pw manager which offloads responsibility from us
+
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
@@ -27,23 +29,6 @@ beep() : // https://stackoverflow.com/a/29641185
 */
 
 "use strict";
-
-//mport * as sscrypt from  "https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js"
-/*
-let sscrypt;
-async function me() {
-  if (true) {
-    try {
-     sscrypt = await mport("https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js");
-      let zz = {sscrypt};
-      let z = 8;
-    } catch (err) {
-      let h = 8;
-    }
-  }
-};
-me();
-*/
 
 let password = ""; //it can be "", but harangue to set a password
 let myInterval; //update every second
@@ -104,6 +89,8 @@ let elementError = document.getElementById("error");
 let elementJsonSave = document.getElementById("JSONSave");
 let elementTempDialog = document.getElementById("tempDialog");
 let elementAddEntryURL = document.getElementById("addEntryURL");
+let elementToggleOff = document.getElementById("toggleOff");
+let elementToggleOn = document.getElementById("toggleOn");
 
 //event listeners
 elementMenuIcon.addEventListener("click", openMenu);
@@ -174,7 +161,7 @@ elementAddEntryForm.addEventListener("submit", function () {
 elementCancelAddEntry.addEventListener("click", function () {
   closeDialog("addEntryDialog");
 });
-
+  
 // START MAIN LOOP //
 
 if (!testBrowser()) {
@@ -214,6 +201,13 @@ async function main() {
       return;
     }
 
+    // localStorage.removeItem(localStorageName + "Biometrics");
+    if (localStorage.getItem(localStorageName + "Biometrics")) {
+      let rawIdHex = localStorage.getItem(localStorageName + "rawId");
+      if (rawIdHex) {
+        webAuthnValidate(rawIdHex);
+      }
+    }
     //try current pw even if "" and try to decrypt
     let dbJSON = await decryptDb(password);
     closeDialog("waitDialog");
@@ -534,13 +528,14 @@ async function addEntry(el) {
       for (let [key, value] of searchParams) {
         if (key == "algorithm") {
           key = "algo";
-          //let preVariable = entryTemplate;
-          if (["secret", "algo", "digits", "period"].includes(key)) {
+        }
+        //let preVariable = entryTemplate;
+        if (["secret", "algo", "digits", "period"].includes(key)) {
             entryTemplate.info[key] = value;
           } else {
             entryTemplate[key] = value;
           }
-        }
+        //}
       }
     } else {
       entryTemplate.issuer = el.addEntryIssuer.value;
