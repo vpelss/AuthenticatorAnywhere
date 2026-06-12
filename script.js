@@ -1,7 +1,6 @@
 // TO DO:
 
 //biometrics will not work well as there is no way to store hidden data in authenticator. so we might as well store pw in the clear. in any case, users can opt to use no pw, not a good idea, but viable. Revisit in a year and see if webauthn extensions prf or bigblob are more widely accepted. users can also use pw manager which offloads responsibility from us
-
 //pw not global?
 //closures?
 // the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
