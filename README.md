@@ -22,7 +22,7 @@ It is also on codepen https://codepen.io/vpelss/pen/EayojzL
 
 It is also availabe as a Chrome Extension. https://chromewebstore.google.com/detail/authenticator-anywhere/hjbpglnnongfehakgdnbhpcgokhdopka
 
-# Use
+# Getting Started
 
 If you already have a saved encrypted Aegis Authenticator database, just click the menu icon, paste the db in the text box and click Import.
 
