@@ -16,7 +16,7 @@ More features are listed here: https://www.emogic.com/tech-notes/authenticator-a
 
 # Run It
 
-https://vpelss.github.io/AuthenticatorAnywhere/
+Recommended: https://vpelss.github.io/AuthenticatorAnywhere/
 
 It is also on codepen https://codepen.io/vpelss/pen/EayojzL
 
