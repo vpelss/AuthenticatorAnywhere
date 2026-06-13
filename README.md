@@ -10,7 +10,7 @@ It runs entirely in your browser using Javascript.
 
 **The database is encrypted and stored in your browser's memory. If you clear your cache, or reinstall your browser, your database is gone. Please create/export a backup and keep it in a safe place.**
 
-It also shows the next upcoming code. A nice old man feature!
+It also shows the next upcoming code.
 
 More features are listed here: https://www.emogic.com/tech-notes/authenticator-anywhere/
 
