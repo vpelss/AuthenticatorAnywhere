@@ -176,7 +176,7 @@ body {
 <div id="MainPageComponent">
   <center>
     <div id="entriesDiv">
-      <center><b>Waiting to load encrypted Aegis database...</b></center>
+      <center><b>Waiting to load encrypted database...</b></center>
     </div>
   </center>
 </div>
@@ -451,6 +451,7 @@ required for chrome extentions due to CORS
 <script src="./remotecode/scrypt.js"></script>
 <script src="./remotecode/qrcode.min.js"></script>
 <script src="./remotecode/html5-qrcode.min.js"></script>
+<script src="./script.js"></script>
 <!--
 Offsite urls are in settings for codepen
 But if showing below they should be removed so they are not downloaded again
@@ -460,6 +461,8 @@ But if showing below they should be removed so they are not downloaded again
 <script src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'></script>
     <script id="rendered-js" >
 // TO DO:
+
+//stop camera on form close?
 
 //removed aegis note field
 //fixed image scan
@@ -621,6 +624,7 @@ elementAddEntryForm.addEventListener("submit", function () {
   addEntry(this);
 });
 elementCancelAddEntry.addEventListener("click", function () {
+  html5QrCodeStop();   //shut down camera scan
   closeDialog("addEntryDialog");
 });
 
