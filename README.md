@@ -1,4 +1,4 @@
-# AuthenticatorAnywhere
+# Authenticator Anywhere
  
 This Web based TOTP Authenticator can be used on **any device** that has a **modern** web browser. Chrome, Edge, Safari.
 
