@@ -3,5 +3,5 @@
 
 - removed aegis note field
 - fixed image scan
-- fixed totp uri name field
-- stopped image scan on form close or submit
+- removed extraneous totp uri name field
+- disabled image scan on form close or submit
