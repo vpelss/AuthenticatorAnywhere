@@ -35,7 +35,9 @@ Should you need to set or change your password, click the menu and click 'Change
 - Use a strong password
 - Back up your database and keep it off site
 - Close AutheticatorAnywhere when you are done
-- Do not keep the password in a password manager. If password manager is compromised, then your authenticator line of defense might fail too
+- Do not keep the password in a password manager. If password manager is compromised, then your authenticator is potentially compromised
+- Copy a single entry from the entry's edit menu
+- Backup or export the entire entry database from the menu icon 
 
 # What is TOTP Authentication?
 
