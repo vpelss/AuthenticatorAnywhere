@@ -1,9 +1,8 @@
 // TO DO:
 
 //biometrics will not work well as there is no way to store hidden data in authenticator. so we might as well store pw in the clear. in any case, users can opt to use no pw, not a good idea, but viable. Revisit in a year and see if webauthn extensions prf or bigblob are more widely accepted. users can also use pw manager which offloads responsibility from us
-//pw not global?
-//closures?
-// the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
+
+// can we : the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
 
 /*
 // Code Sources
@@ -155,12 +154,14 @@ elementCancelChangePasswordButton.addEventListener("click", function () {
   closeDialog("changePasswordDialog");
 });
 elementAddEntryForm.addEventListener("submit", function () {
+  html5QrCodeStop();   //shut down camera scan
   addEntry(this);
 });
 elementCancelAddEntry.addEventListener("click", function () {
+  html5QrCodeStop();   //shut down camera scan
   closeDialog("addEntryDialog");
 });
-  
+
 // START MAIN LOOP //
 
 if (!testBrowser()) {
@@ -365,16 +366,17 @@ function editEntryDialog(id) {
     let digits = dbGlobal.entries[id].info.digits || "6";
     let period = dbGlobal.entries[id].info.period || "30";
     let secret = dbGlobal.entries[id].info.secret || "";
-    let note = dbGlobal.entries[id].info.note || "";
+    //let note = dbGlobal.entries[id].info.note || "";
 
-    let url = `otpauth://totp/${issuer}:${name}?issuer=${issuer}&name=${name}&secret=${secret}&algorithm=${algorithm}&digits=${digits}&period=${period}&note=${note}`;
+    //let url = `otpauth://totp/${issuer}:${name}?issuer=${issuer}&secret=${secret}&algorithm=${algorithm}&digits=${digits}&period=${period}&note=${note}`;
+    let url = `otpauth://totp/${issuer}:${name}?issuer=${issuer}&secret=${secret}&algorithm=${algorithm}&digits=${digits}&period=${period}`;
 
     //build html modifiedTemplate with data using #editEntryTemplate
     let modifiedTemplate = template("editEntryTemplate", {
       entryId: "" + id,
       entryIssuer: issuer,
       entryName: name,
-      entryNote: note,
+      //entryNote: note,
       entryInfoSecret: secret,
       editEntryUrl: url
     });
@@ -410,7 +412,7 @@ async function editEntry(id) {
     let el = elementTempDialog.querySelector("form");
     let entryName = el.editEntryName.value;
     let entryIssuer = el.editEntryIssuer.value;
-    let entryNote = el.editEntryNote.value;
+    //let entryNote = el.editEntryNote.value;
     let entrySecret = el.editEntryInfoSecret.value;
 
     //do we have enough data to continue>
@@ -422,7 +424,7 @@ async function editEntry(id) {
     //update the entry in dbGlobal
     dbGlobal.entries[id].name = entryName;
     dbGlobal.entries[id].issuer = entryIssuer;
-    dbGlobal.entries[id].note = entryNote;
+    //dbGlobal.entries[id].note = entryNote;
     dbGlobal.entries[id].info.secret = entrySecret;
 
     //encrypt dbGlobal and save localStorageObject to localstorage
@@ -482,7 +484,35 @@ function html5QrCode() {
     /* verbose= */ true
   );
   html5QrcodeScanner.render(function (result) {
-    elementAddEntryURL.value = result;
+    //fill elementAddEntryForm values
+    let url = decodeURIComponent(result);
+    elementAddEntryURL.value = url;
+    if (isValidHttpUrl(url)) {
+      // otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1 &digits=6&period=30
+      let urlArray = new URL(url);
+      //urlArray.pathname will contain isssuer:name
+      let [issuer2, name2] = urlArray.pathname.slice(1).split(":"); //slice remove first /
+      //add these in the case they are not in search terms
+      elementAddEntryForm.addEntryIssuer.value = issuer2;
+      if (typeof name2 == "string") {
+        elementAddEntryForm.addEntryName.value = name2;
+      }
+      let searchParams = new URLSearchParams(urlArray.search); //array of key=value pairs
+      for (let [key, value] of searchParams) {
+        if (key == "issuer") {
+          elementAddEntryForm.addEntryIssuer.value = value;
+        }
+        if (key == "name") {
+          elementAddEntryForm.addEntryName.value = value;
+        }
+        if (key == "secret") {
+          elementAddEntryForm.addEntrySecret.value = value;
+        }
+        //        if (key == "note") {
+        //        elementAddEntryForm.addEntryNote.value = value;
+        //    }
+      }
+    }
     beep();
   });
 }
@@ -505,7 +535,7 @@ async function addEntry(el) {
       uuid: uuid,
       name: "",
       issuer: "",
-      note: "",
+      //note: "",
       favorite: false,
       icon: null,
       info: {
@@ -517,31 +547,10 @@ async function addEntry(el) {
       groups: []
     };
 
-    //el is the form from #addEntryDialog
-    let url = el.addEntryURL.value;
-    //URL or manual add
-    if (isValidHttpUrl(url)) {
-      // otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1 &digits=6&period=30
-      let urlArray = new URL(url);
-      let searchParams = new URLSearchParams(urlArray.search); //array of key=value pairs
-      for (let [key, value] of searchParams) {
-        if (key == "algorithm") {
-          key = "algo";
-        }
-        //let preVariable = entryTemplate;
-        if (["secret", "algo", "digits", "period"].includes(key)) {
-            entryTemplate.info[key] = value;
-          } else {
-            entryTemplate[key] = value;
-          }
-        //}
-      }
-    } else {
-      entryTemplate.issuer = el.addEntryIssuer.value;
-      entryTemplate.name = el.addEntryName.value;
-      entryTemplate.note = el.addEntryNote.value;
-      entryTemplate.info.secret = el.addEntrySecret.value;
-    }
+    entryTemplate.issuer = el.addEntryIssuer.value;
+    entryTemplate.name = el.addEntryName.value;
+    //    entryTemplate.note = el.addEntryNote.value;
+    entryTemplate.info.secret = el.addEntrySecret.value;
 
     //do we have enough data to continue>
     if (entryTemplate.info.secret == "" || entryTemplate.issuer == "") {

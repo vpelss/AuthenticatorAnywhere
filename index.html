@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>AuthenticatorAnywhere</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="manifest" href="./themanifest.json"> 
-
-
-
-
-<link rel='stylesheet' href='https://cdn.simplecss.org/simple.css'><link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <div id="header">
+<div id="header">
   <center>
     <button id="menu_icon">&#x2261;</button>
     <button id="x_icon" hidden>X</button>
@@ -39,13 +21,14 @@
 <div id="MainPageComponent">
   <center>
     <div id="entriesDiv">
-      <center><b>Waiting to load encrypted Aegis database...</b></center>
+      <center><b>Waiting to load encrypted database...</b></center>
     </div>
   </center>
 </div>
 
 <div id="MenuPageComponent" hidden>
   <center>
+
     <div class="border">
       <div>Import / Export encrypted JSON database : using textbox</div>
       <div>
@@ -204,21 +187,23 @@
     <div>OR</div>
     <form id="addEntryForm" method="dialog">
       <div>
-        <input type="text" id="addEntryURL" class="secret" placeholder="url otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example" autocomplete="off">
+        <input type="text" id="addEntryURL" class="secret" placeholder="URL" autocomplete="off">
       </div>
       <div>OR</div>
       <div>
-        <input type="text" id="addEntryIssuer" placeholder="Issuer/Company:Required" autocomplete="off">
+        <input type="text" id="addEntryIssuer" placeholder="Issuer / Company (Required)" autocomplete="off">
       </div>
       <div>
         <input type="text" id="addEntryName" placeholder="Name / Description" autocomplete="off">
       </div>
       <div>
-        <input type="text" id="addEntrySecret" class="secret" placeholder="Secret/Code:Required" autocomplete="off">
+        <input type="text" id="addEntrySecret" class="secret" placeholder="Secret / Code (Required)" autocomplete="off">
       </div>
+      <!--
       <div>
         <input type="text" id="addEntryNote" placeholder="Note" autocomplete="off">
       </div>
+-->
       <div>
         <input type="submit" value="Submit">
       </div>
@@ -236,25 +221,23 @@
     <form method="dialog" onsubmit="editEntry('${entryId}')">
       <center>
         <div>
-          <input id="toggleQrCodeButton" type="button" value="Toggle QR Code" title="For scanning to another authenticator app">
-          <div id="qrCode"></div>
-        </div>
-        <div>
           <label for="editEntryIssuer">Issuer</label>
-          <input type="text" id="editEntryIssuer" placeholder="Issuer" autocomplete="off" value="${entryIssuer}">
+          <input type="text" id="editEntryIssuer" placeholder="Issuer / Company (Required)" autocomplete="off" value="${entryIssuer}">
         </div>
         <div>
           <label for="editEntryName">Name</label>
-          <input type="text" id="editEntryName" placeholder="Name" autocomplete="off" value="${entryName}">
+          <input type="text" id="editEntryName" placeholder="Name / Description" autocomplete="off" value="${entryName}">
         </div>
         <div>
-          <label for="editEntryInfoSecret">Secret</label>
-          <input type="text" id="editEntryInfoSecret" placeholder="Secret" autocomplete="off" class="secret" value="${entryInfoSecret}">
+          <label for="editEntryInfoSecret">Secret : click to reveal</label>
+          <input type="text" id="editEntryInfoSecret" placeholder="Secret / Code (Required)" autocomplete="off" class="secret" value="${entryInfoSecret}">
         </div>
+        <!--
         <div>
           <label for="editEntryNote">Note</label>
           <input type="text" id="editEntryNote" placeholder="Note" autocomplete="off" value="${entryNote}">
         </div>
+    -->
         <div>
           <input type="submit" value="Submit">
         </div>
@@ -266,8 +249,13 @@
         <div>
           <input id="deleteEditEntryButton" type="button" value="Delete Entry">
         </div>
+        <hr>
         <div>
-          <label for="editEntryUrl">URL</label>
+          <input id="toggleQrCodeButton" type="button" value="Toggle QR Code to Copy" title="For scanning to another authenticator app">
+          <div id="qrCode"></div>
+        </div>
+        <div>
+          <label for="editEntryUrl">URL : click to reveal</label>
           <input type="text" id="editEntryUrl" placeholder="URL" autocomplete="off" value="${editEntryUrl}" class="secret">
         </div>
       </center>
@@ -311,13 +299,7 @@ required for chrome extentions due to CORS
 <script src="./remotecode/html5-qrcode.min.js"></script>
 <script src="./script.js"></script>
 <!--
-Offsite urls are in settings for codepen
-But if showing below they should be removed so they are not downloaded again
+The following offsite urls are here for codepen only!
+If code is used on my github or in chrome extensions
+they must removed so they are not downloaded again
 -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/scrypt-js/3.0.1/scrypt.js'></script>
-<script src='https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js'></script>
-<script src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'></script><script  src="./script.js"></script>
-
-  </body>
-  
-</html>
