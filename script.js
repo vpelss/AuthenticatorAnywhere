@@ -1,6 +1,6 @@
 // TO DO:
 
-//biometrics will not work well as there is no way to store hidden data in authenticator. so we might as well store pw in the clear. in any case, users can opt to use no pw, not a good idea, but viable. Revisit in a year and see if webauthn extensions prf or bigblob are more widely accepted. users can also use pw manager which offloads responsibility from us
+//biometrics will not work well as there is no way to store the password in webauthn. In any case, users can opt to use no passwword (please don't do this) or use a password manager to store thier password. Revisit in a year and see if webauthn extensions prf or bigblob are more widely accepted so we can use that to store the password encrypted
 
 // can we : the key is decrypted when needed to verify an OTP value, and re-encrypted immediately to limit exposure in the RAM to a short period of time
 
@@ -59,6 +59,7 @@ let elementTheBar = document.getElementById("theBar");
 let elementMainPageComponent = document.getElementById("MainPageComponent");
 let elementMenuPageComponent = document.getElementById("MenuPageComponent");
 let elementEntriesDiv = document.getElementById("entriesDiv");
+let elementEntriesShowingCountDiv = document.getElementById("entriesShowingCountDiv");
 let elementImportFromTextButton = document.getElementById(
   "importFromTextButton"
 );
@@ -870,9 +871,10 @@ function isValidlocalStorageObject() {
 function buildEntriesDOM() {
   try {
     let entriesCount = 0;
+    let entriesShowingCount = 0;
     let outputString = "";
     let searchText = elementSearchText.value.trim().toLowerCase();
-
+    
     dbGlobal.entries.forEach(function (entry) {
       //start search filter
       let issuerPlusName =
@@ -884,10 +886,12 @@ function buildEntriesDOM() {
           entryId: "" + entriesCount
         });
         outputString = outputString + modifiedTemplate;
+        entriesShowingCount += 1; 
       }
       entriesCount += 1; //always do this to enumerate entries correctly
     });
     elementEntriesDiv.innerHTML = outputString;
+    elementEntriesShowingCountDiv.innerHTML = "" + entriesShowingCount + " showing";
     //elementEntriesDiv.
   } catch (err) {
     postError(err);
