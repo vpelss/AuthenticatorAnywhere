@@ -210,7 +210,7 @@ async function main() {
       }
     }
     //try current pw even if "" and try to decrypt
-    let dbJSON = await decryptDb(password);
+    let dbJSON = await decryptDb(password , localStorageObject);
     closeDialog("waitDialog");
     if (!dbJSON) {
       //pw failed so open passwordDialog
@@ -429,7 +429,7 @@ async function editEntry(id) {
     dbGlobal.entries[id].info.secret = entrySecret;
 
     //encrypt dbGlobal and save localStorageObject to localstorage
-    let result = await encryptDb(password);
+    let result = await encryptDb(password , localStorageObject);
     if (!result) {
       throw "encryptDb faiiled";
     }
@@ -445,7 +445,7 @@ async function deleteEntry(id) {
     if (confirm("This will delete this Entry. Are you sure?")) {
       //are you sure?
       dbGlobal.entries.splice(id, 1);
-      let result = await encryptDb(password);
+      let result = await encryptDb(password , localStorageObject);
       if (!result) {
         throw "encryptDb faiiled";
       }
@@ -602,7 +602,7 @@ async function addEntry(el) {
     }
 
     dbGlobal.entries.push(entryTemplate); //add entry to dbGlobal
-    let result = await encryptDb(password);
+    let result = await encryptDb(password, localStorageObject);
     if (!result) {
       throw "encryptDb faiiled";
     }
@@ -633,7 +633,7 @@ async function changePassword(el) {
       }
       password = pw1;
       closeDialog("changePasswordDialog");
-      let result = await encryptDb(password);
+      let result = await encryptDb(password, localStorageObject);
       if (!result) {
         throw "encryptDb faiiled";
       }
@@ -1194,7 +1194,7 @@ async function hmac(
   }
 }
 
-async function decryptDb(password) {
+async function decryptDb(password , localStorageObject) {
   try {
     // based on https://github.com/Sammy-T/avdu/blob/master/vault/decrypt.go
     // use password to decrypt masterKey from the vault
@@ -1302,7 +1302,7 @@ async function decrypt(iv, key, ciphertext) {
   }
 }
 
-async function encryptDb(password) {
+async function encryptDb(password , localStorageObject) { // localStorageObject is passed by reference
   try {
     openDialog("waitDialog");
     clearInterval(myInterval); //stop working so hard
