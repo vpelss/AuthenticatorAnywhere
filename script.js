@@ -615,9 +615,7 @@ async function addEntry(el) {
 
 async function changePassword(el) {
   try {
-    //let pw1 = el[0].value;
     let pw1 = el.elements["newPassword1"].value;
-    //let pw2 = el[1].value;
     let pw2 = el.elements["newPassword2"].value;
     if (!isValidlocalStorageObject()) {
       alert("There is no database yet.");
@@ -664,8 +662,9 @@ function wipeDatabase() {
 }
 
 function tryPassword() {
-  let el = document.getElementById("password");
-  password = el.value;
+  //let el = document.getElementById("password");
+  //password = el.value;
+  password = elementPasswordDialogForm.elements["password"].value;
   el.value = "";
   main();
 }
@@ -939,7 +938,7 @@ async function copyToClipboard(text) {
     document.execCommand("copy", false, null);
     textarea.remove();
     // await navigator.clipboard.writeText(clipboardText.value); //f!@# you. I need to click to copy?
-  } catch (error) {
+  } catch (err) {
     postError(err);
   }
 }
