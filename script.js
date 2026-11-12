@@ -638,8 +638,6 @@ async function changePassword(el) {
         throw "encryptDb faiiled";
       }
       setLocalStorage(localStorageObject);
-      el[0].value = "";
-      el[1].value = "";
       main();
     } else {
       window.alert("Passwords do not match");
@@ -647,6 +645,10 @@ async function changePassword(el) {
   } catch (err) {
     postError(err);
   }
+  finally {
+    el.elements["newPassword1"].value = "";
+    el.elements["newPassword2"].value = "";
+}
 }
 
 function wipeDatabase() {
@@ -662,10 +664,8 @@ function wipeDatabase() {
 }
 
 function tryPassword() {
-  //let el = document.getElementById("password");
-  //password = el.value;
   password = elementPasswordDialogForm.elements["password"].value;
-  el.value = "";
+  elementPasswordDialogForm.elements["password"].value = "";
   main();
 }
 
@@ -739,7 +739,7 @@ async function importFromFile() {
         localStorageObject = JSON.parse(jsonString); //also set obj
         dbGlobal = {}; //wipe old data
         setLocalStorage(localStorageObject);
-        tempDialog.innerHTML = "Imported Database " + file.name + " Saved";
+        elementTempDialog.innerHTML = "Imported Database " + file.name + " Saved";
         setTimeout(function () {
           closeDialog("tempDialog");
         }, 1500);
@@ -770,7 +770,7 @@ async function exportToFile() {
     let el = document.getElementById("fileOutput"); //it needs download="myDbName.txt"
     el.href = "data:text/plain;base64," + btoa(jsonString);
     //el.href="data:text/plain;charset=US-ASCII," + jsonString;
-    tempDialog.innerHTML = "Database Saved";
+    elementTempDialog.innerHTML = "Database Saved";
     setTimeout(function () {
       closeDialog("tempDialog");
     }, 1500);
@@ -932,7 +932,7 @@ async function copyToClipboard(text) {
   try {
     let textarea = document.createElement("TEXTAREA");
     document.body.appendChild(textarea);
-    textarea.innerHTML = text;
+    //textarea.innerHTML = text;
     textarea.value = text;
     textarea.select();
     document.execCommand("copy", false, null);
